@@ -10,7 +10,9 @@
     "react": "16.6.3",
     "react-native": "0.58.6",
     "react-native-firebase": "^5.2.3",
+    "react-native-gesture-handler": "^1.1.0",
     "react-native-google-signin": "^1.2.2",
+    "react-navigation": "^3.6.0",
     "react-redux": "^6.0.1",
     "redux": "^4.0.1"
   },
