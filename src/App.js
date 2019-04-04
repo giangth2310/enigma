@@ -1,12 +1,20 @@
 import React, {Component} from 'react';
-import {View, Text} from 'react-native';
-import { GoogleSignin, GoogleSigninButton } from 'react-native-google-signin';
 import { createAppContainer } from "react-navigation";
-import AppNavigator from './Container/LoginScreen';
+import Navigator from './Navigator';
+import {GoogleSignin} from 'react-native-google-signin';
 
-const AppContainer = createAppContainer(AppNavigator);
+import { YellowBox } from "react-native";
+YellowBox.ignoreWarnings(["Remote debugger"]);
+
+const AppContainer = createAppContainer(Navigator);
 
 class App extends Component {
+  componentWillMount() {
+    GoogleSignin.configure({
+      webClientId: '217407860699-qeprm9tf6v0pk37irmlcrr09jbf5vuu3.apps.googleusercontent.com'
+    })
+  }
+  
   render() {
     return <AppContainer />;
   }
