@@ -1,24 +1,71 @@
 import React from 'react';
-import {createStackNavigator, createBottomTabNavigator} from 'react-navigation';
+import {createBottomTabNavigator, createSwitchNavigator, createStackNavigator} from 'react-navigation';
 import SigninScreen from './containers/SigninScreen';
 import FriendScreen from './containers/FriendScreen';
-import FriendRequestScreen from './containers/FriendRequestScreen';
-import MessageScreen from './containers/MessageScreen';
+import ChatScreen from './containers/ChatScreen';
+import {Icon} from 'react-native-elements';
+import Header from './components/Header';
+import SearchScreen from './containers/SearchScreen';
+import SearchBarHeader from './components/SearchBarHeader';
+import ProfileScreen from './containers/ProfileScreen';
 
-const mainScreen = createBottomTabNavigator({
-  MessageScreen,
-  FriendScreen,
-  FriendRequestScreen
-})
-
-export default createStackNavigator({
-  auth: {
-    screen: SigninScreen
+const BottomTabNavigation = createBottomTabNavigator({
+  Chat: {
+    screen: ChatScreen,
   },
-  main: {
-    screen: mainScreen
+  Friend: {
+    screen: FriendScreen,
   }
 }, {
-  initialRouteName: "auth",
-  headerMode: 'none'
+  defaultNavigationOptions: ({ navigation }) => ({
+    tabBarIcon: ({ focused, tintColor }) => {
+      const { routeName } = navigation.state;
+      let IconComponent = Icon;
+      let iconName;
+      let type;
+
+      if (routeName === 'Chat') {
+        iconName = 'message1';
+        type = 'antdesign';
+      } else if (routeName === 'Friend') {
+        iconName = 'people';
+        type = 'simple-line-icon';
+      }
+
+      return <IconComponent name={iconName} type={type} size={32} color={tintColor} />;
+    },
+    tabBarOptions: {
+      activeTintColor: 'black',
+      inactiveTintColor: 'gray',
+      showLabel: false,
+    }
+  }),
+})
+
+const App = createStackNavigator({
+  BottomTabNavigation: {
+    screen: BottomTabNavigation,
+    navigationOptions: {
+      header: props => <Header {...props} />
+    }
+  },
+  Search: {
+    screen: SearchScreen,
+    navigationOptions: {
+      headerTitle: props => <SearchBarHeader {...props}  />
+    }
+  },
+  Profile: {
+    screen: ProfileScreen,
+    navigationOptions: {
+      title: 'Profile'
+    }
+  }
+})
+
+export default createSwitchNavigator({
+  Auth: {
+    screen: SigninScreen,
+  },
+  App
 })

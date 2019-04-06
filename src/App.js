@@ -2,6 +2,11 @@ import React, {Component} from 'react';
 import { createAppContainer } from "react-navigation";
 import Navigator from './Navigator';
 import {GoogleSignin} from 'react-native-google-signin';
+import { createStore, applyMiddleware } from 'redux';
+import reducers from './reducers';
+import ReduxThunk from 'redux-thunk';
+import {Provider} from 'react-redux';
+import logger from 'redux-logger'
 
 import { YellowBox } from "react-native";
 YellowBox.ignoreWarnings(["Remote debugger"]);
@@ -16,7 +21,13 @@ class App extends Component {
   }
   
   render() {
-    return <AppContainer />;
+    const store = createStore(reducers, applyMiddleware(ReduxThunk, logger));
+
+    return (
+      <Provider store={store}>
+        <AppContainer />
+      </Provider>
+    )
   }
 }
 

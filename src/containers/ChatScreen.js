@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import {Text, View} from 'react-native';
 
-class MessageScreen extends Component {
+class ChatScreen extends Component {
   render() {
     return (
       <View>
-        <Text>MessageScreen</Text>
+        <Text>ChatScreen</Text>
       </View>
     )
   }
 }
 
-export default MessageScreen;
+export default ChatScreen;
