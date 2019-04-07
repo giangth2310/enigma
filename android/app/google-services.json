@@ -15,8 +15,12 @@
       },
       "oauth_client": [
         {
-          "client_id": "217407860699-qeprm9tf6v0pk37irmlcrr09jbf5vuu3.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "217407860699-pm1isme5a30cb3d9cfn0ao1cpi0u8jd8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.enigma",
+            "certificate_hash": "c80ba081a6c52b3ced7e5f293655ccc8e81451f4"
+          }
         }
       ],
       "api_key": [
@@ -25,15 +29,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "217407860699-qeprm9tf6v0pk37irmlcrr09jbf5vuu3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
