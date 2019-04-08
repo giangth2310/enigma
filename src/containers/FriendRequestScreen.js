@@ -13,6 +13,9 @@ class FriendRequestScreen extends Component {
 
   async componentDidMount() {
     const { friends, uid } = this.props.auth;
+    if (!friends) {
+      return;
+    }
     const friendRequest = [];
     for (let id in friends) {
       const {status, from, to} = friends[id];
