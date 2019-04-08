@@ -9,10 +9,11 @@ import SearchScreen from './containers/SearchScreen';
 import SearchBarHeader from './components/SearchBarHeader';
 import ProfileScreen from './containers/ProfileScreen';
 import FriendRequestScreen from './containers/FriendRequestScreen';
+import MessageScreen from './containers/MessageScreen';
 
 const BottomTabNavigation = createBottomTabNavigator({
-  Chat: {
-    screen: ChatScreen,
+  Message: {
+    screen: MessageScreen,
   },
   Friend: {
     screen: FriendScreen,
@@ -26,7 +27,7 @@ const BottomTabNavigation = createBottomTabNavigator({
       let iconName;
       let type;
 
-      if (routeName === 'Chat') {
+      if (routeName === 'Message') {
         iconName = 'message1';
         type = 'antdesign';
       } else if (routeName === 'Friend') {
@@ -68,6 +69,9 @@ const App = createStackNavigator({
     navigationOptions: {
       title: 'Friend Requests'
     }
+  },
+  Chat: {
+    screen: ChatScreen
   }
 })
 

@@ -4,33 +4,46 @@ import {Text, ListItem} from 'react-native-elements';
 import {connect} from 'react-redux';
 import firebase from 'react-native-firebase';
 import StatusAvatar from '../components/StatusAvatar';
+import {getChatId} from '../utils';
 
 class FriendScreen extends Component {
   state = {
     friendList: []
   }
 
-  componentDidMount() {
-    firebase.database().ref('/users').on('value', snapshot => {
-      const {friends} = this.props.auth;
-      const friendList = [];
-      const users = snapshot.val();
-      for (let id in friends) {
-        if (friends[id].status === 'accept') {
-          const {displayName, photoURL, online} = users[id];
-          if (online) {
-            friendList.unshift({ displayName, photoURL, online, id })
-          } else {
-            friendList.push({displayName, photoURL, online, id})
-          }
+  updateFriendList = snapshot => {
+    const { friends } = this.props.auth;
+    const friendList = [];
+    const users = snapshot.val();
+    for (let id in friends) {
+      if (friends[id].status === 'accept') {
+        const { displayName, photoURL, online } = users[id];
+        if (online) {
+          friendList.unshift({ displayName, photoURL, online, id })
+        } else {
+          friendList.push({ displayName, photoURL, online, id })
         }
       }
+    }
 
-      this.setState({friendList});
-    })
+    this.setState({ friendList });
   }
 
-  renderItem = ({ item, index }) => {
+  componentDidMount() {
+    firebase.database().ref('/users').on('value', this.updateFriendList);
+  }
+
+  componentWillUnmount() {
+    firebase.database().ref('/users').off('value', this.updateFriendList);
+  }
+
+  openChat = (id) => {
+    const {uid} = this.props.auth;
+    const chatId = getChatId(id, uid);
+    this.props.navigation.navigate('Chat', {chatId});
+  }
+
+  renderItem = ({ item }) => {
     const { id, photoURL, online, displayName } = item;
 
     return (
@@ -46,6 +59,7 @@ class FriendScreen extends Component {
               uri: photoURL,
             }} />
         )}
+        onPress={() => this.openChat(id)}
         rightTitle={online ? 'Online' : 'Offline'}
         rightTitleStyle={online ? { color: '#5cb85c', fontWeight: '500'} : {fontStyle: 'italic'}}
       ></ListItem>

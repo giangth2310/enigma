@@ -3,12 +3,18 @@ import { View } from 'react-native';
 import { Avatar, Text, Button, Icon } from 'react-native-elements';
 import {connect} from 'react-redux';
 import { GoogleSignin } from 'react-native-google-signin';
+import firebase from 'react-native-firebase';
 
 class ProfileScreen extends Component {
   signOut = async () => {
+    const {uid} = this.props.auth;
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
+      firebase.database().ref(`/users/${uid}`).update({
+        lastSignIn: Date.now(),
+        online: false
+      })
       this.props.navigation.navigate('Auth');
     } catch (error) {
       console.error(error);
