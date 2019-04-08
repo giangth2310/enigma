@@ -1,9 +1,9 @@
 import * as types from './types';
 import firebase from 'react-native-firebase';
 
-export const signInSuccess = (payload) => {
+export const updateUserData = (payload) => {
   return {
-    type: types.SIGN_IN_SUCCESS,
+    type: types.UPDATE_USER_DATA,
     payload
   }
 }
@@ -27,7 +27,7 @@ export const fetchSearchData = (value) => {
     snapshot.forEach(childSnapshot => {
       const childData = childSnapshot.val();
       if (childData.email.toLowerCase().includes(value.toLowerCase()) && childData.email !== email) {
-        result.push(childData);
+        result.push({...childData, id: childSnapshot.key});
       }
     })
 
@@ -35,5 +35,29 @@ export const fetchSearchData = (value) => {
       type: types.FINISH_SEARCH,
       result
     })
+  }
+}
+
+export const sendFriendRequest = (friendRequest) => {
+  const {from, to} = friendRequest
+  firebase.database().ref(`/users/${from}/friends/${to}`).set(friendRequest);
+  firebase.database().ref(`/users/${to}/friends/${from}`).set(friendRequest);
+  return {
+    type: types.SEND_FRIEND_REQUEST,
+    friendRequest
+  }
+}
+
+export const acceptFriendRequest = (from, to) => {
+  const updateData = {
+    lastUpdate: Date.now(),
+    status: 'accept'
+  }
+  firebase.database().ref(`/users/${from}/friends/${to}`).update(updateData);
+  firebase.database().ref(`/users/${to}/friends/${from}`).update(updateData);
+
+  return {
+    type: types.ACCEPT_FRIEND_REQUEST,
+    from, to
   }
 }

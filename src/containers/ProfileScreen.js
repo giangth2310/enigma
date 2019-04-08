@@ -24,7 +24,8 @@ class ProfileScreen extends Component {
       }}>
         <View style={{
             flex: 1,
-            alignItems: 'center'
+            alignItems: 'center',
+            marginBottom: 10
           }}>
           <Avatar
             containerStyle={{
@@ -41,7 +42,7 @@ class ProfileScreen extends Component {
           </Text>
           <Text style={{
             fontSize: 18,
-            marginVertical: 10
+            marginTop: 10
           }}>
             {email}
           </Text>
@@ -49,7 +50,7 @@ class ProfileScreen extends Component {
         <View style={{
           flex: 1
         }}>
-          <Text style={{fontSize: 16, fontWeight: '500', marginHorizontal: 30, marginBottom: 5}}>Account</Text>
+          <Text style={{fontSize: 16, fontWeight: '500', marginTop: 20,marginBottom: 5, marginHorizontal: 30}}>Account</Text>
           <Button
             icon={(
               <Icon
@@ -57,14 +58,14 @@ class ProfileScreen extends Component {
                 type='antdesign'
                 iconStyle={{
                   color: 'red',
-                  marginRight: 20
+                  marginRight: 20,
+                  marginLeft: 30
                 }}
                 size={28}
                 ></Icon>
             )}
             buttonStyle={{
               justifyContent: 'flex-start',
-              paddingHorizontal: 35
             }}
             titleStyle={{
               color: '#000',

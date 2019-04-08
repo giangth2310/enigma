@@ -11,30 +11,38 @@ class LoginScreen extends Component {
     loading: true
   }
 
+  updateUserData = (user) => {
+    const userRef = firebase.database().ref(`/users/${user.uid}`);
+    userRef.on('value', snapshot => {
+      const userData = snapshot.val();
+      this.props.updateUserData(userData);
+    })
+    userRef.update({
+      lastSignIn: Date.now(),
+      online: true
+    })
+    userRef.onDisconnect().update({
+      lastSignIn: Date.now(),
+      online: false
+    })
+  }
+
+  createUser = (user) => {
+    const payload = {
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      uid: user.uid
+    }
+    firebase.database().ref(`/users/${user.uid}`).set(payload);
+  } 
+
   async componentDidMount() {
     try {
       const userInfo = await GoogleSignin.signInSilently();
       const credential = firebase.auth.GoogleAuthProvider.credential(userInfo.idToken, userInfo.accessToken);
       const {user} = await firebase.auth().signInWithCredential(credential);
-
-      const payload = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        lastSignIn: Date.now(),
-      }
-      this.props.signInSuccess(payload);
-
-      const userRef = firebase.database().ref(`/users/${user.uid}`);
-      userRef.update({
-        lastSignIn: payload.lastSignIn,
-        online: true
-      })
-      userRef.onDisconnect().update({
-        lastSignIn: Date.now(),
-        online: false
-      })
-
+      this.updateUserData(user);
       this.props.navigation.navigate('App');
     } catch (error) {
       if (error.code != statusCodes.SIGN_IN_REQUIRED) {
@@ -52,16 +60,14 @@ class LoginScreen extends Component {
       const credential = firebase.auth.GoogleAuthProvider.credential(userInfo.idToken, userInfo.accessToken);
       const {user} = await firebase.auth().signInWithCredential(credential);
 
-      const payload = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        lastSignIn: Date.now(),
-        online: true
+      const userData = await firebase.database().ref(`/users/${user.uid}`).once('value');
+      console.log(userData.val());
+      if (!userData.val()) {
+        this.createUser(user);
       }
-      this.props.signInSuccess(payload);
-      firebase.database().ref(`/users/${user.uid}`).set(payload);
-      this.props.navigation.navigate('App')
+
+      this.updateUserData(user);
+      this.props.navigation.navigate('App');
     } catch (error) {
       console.log(error)
       this.setState({ loading: false });

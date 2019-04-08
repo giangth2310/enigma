@@ -1,7 +1,6 @@
 import React, {Component} from "react";
-import { View, TouchableOpacity } from "react-native";
-import { SearchBar } from 'react-native-elements';
-import { Avatar } from 'react-native-elements';
+import { View, TouchableOpacity, ActivityIndicator } from "react-native";
+import { SearchBar, Image, Badge } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
 import {connect} from 'react-redux';
 import * as actions from '../actions';
@@ -21,9 +20,20 @@ class SearchBarHeader extends Component {
     this.props.navigation.navigate('Profile');
   }
 
+  onFriendRequestPress = () => {
+    this.props.navigation.navigate('FriendRequest');
+  }
+
   render() {
     const {auth, search} = this.props;
-    console.log(Header.HEIGHT);
+
+    let friendRequestNumber = 0;
+    Object.keys(auth.friends).forEach(id => {
+      const friendRequest = auth.friends[id];
+      if (friendRequest.status === 'pending' && friendRequest.to === auth.uid) {
+        friendRequestNumber += 1;
+      }
+    })
 
     return (
       <View style={{
@@ -45,27 +55,30 @@ class SearchBarHeader extends Component {
           style={{
             alignItems: 'center',
             justifyContent: 'center',
-            width: 50,
-            height: 50,
+            width: 40,
+            height: 40,
             backgroundColor: '#eeeeee',
-            borderRadius: 25,
+            borderRadius: 20,
             marginRight: 10
           }}
+          onPress={this.onFriendRequestPress}
         >
-        <Icon color='black' 
-          name='account-plus' 
-          size={32}
-          type='material-community'></Icon>
+          <Icon color='black' 
+            name='account-plus' 
+            size={32}
+            type='material-community'></Icon>
+          {friendRequestNumber > 0 ? (<Badge
+            status='error'
+            value={friendRequestNumber}
+            containerStyle={{ position: 'absolute', top: -5, right: -5 }}
+          />) : null}
         </TouchableOpacity>
-        <Avatar
-          rounded
-          size='medium'
-          source={{
-            uri: auth.photoURL,
-          }}
-          onPress={this.onAvatarPress}
-          containerStyle={{marginRight: 10}}
-        />
+        <TouchableOpacity style={{marginRight: 10}} onPress={this.onAvatarPress}>
+          <Image source={{uri: auth.photoURL}}
+            style={{width: 40, height: 40, borderRadius: 20}}
+            PlaceholderContent={<ActivityIndicator></ActivityIndicator>}
+          ></Image>
+        </TouchableOpacity>
       </View>
     )
   }

@@ -8,6 +8,7 @@ import Header from './components/Header';
 import SearchScreen from './containers/SearchScreen';
 import SearchBarHeader from './components/SearchBarHeader';
 import ProfileScreen from './containers/ProfileScreen';
+import FriendRequestScreen from './containers/FriendRequestScreen';
 
 const BottomTabNavigation = createBottomTabNavigator({
   Chat: {
@@ -17,6 +18,7 @@ const BottomTabNavigation = createBottomTabNavigator({
     screen: FriendScreen,
   }
 }, {
+  initialRouteName: 'Friend',
   defaultNavigationOptions: ({ navigation }) => ({
     tabBarIcon: ({ focused, tintColor }) => {
       const { routeName } = navigation.state;
@@ -59,6 +61,12 @@ const App = createStackNavigator({
     screen: ProfileScreen,
     navigationOptions: {
       title: 'Profile'
+    }
+  },
+  FriendRequest: {
+    screen: FriendRequestScreen,
+    navigationOptions: {
+      title: 'Friend Requests'
     }
   }
 })
