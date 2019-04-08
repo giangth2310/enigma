@@ -10,6 +10,7 @@ import SearchBarHeader from './components/SearchBarHeader';
 import ProfileScreen from './containers/ProfileScreen';
 import FriendRequestScreen from './containers/FriendRequestScreen';
 import MessageScreen from './containers/MessageScreen';
+import ChatHeader from './components/ChatHeader';
 
 const BottomTabNavigation = createBottomTabNavigator({
   Message: {
@@ -71,7 +72,10 @@ const App = createStackNavigator({
     }
   },
   Chat: {
-    screen: ChatScreen
+    screen: ChatScreen,
+    navigationOptions: {
+      headerTitle: props => <ChatHeader {...props} />
+    }
   }
 })
 

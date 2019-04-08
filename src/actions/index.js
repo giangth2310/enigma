@@ -61,3 +61,10 @@ export const acceptFriendRequest = (from, to) => {
     from, to
   }
 }
+
+export const updateChatUser = (user) => {
+  return {
+    type: types.UPDATE_CHAT_USER,
+    user
+  }
+}

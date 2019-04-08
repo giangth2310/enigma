@@ -29,7 +29,7 @@ class FriendScreen extends Component {
     this.setState({ friendList });
   }
 
-  componentDidMount() {
+  componentWillMount() {
     firebase.database().ref('/users').on('value', this.updateFriendList);
   }
 
