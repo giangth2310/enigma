@@ -11,6 +11,7 @@ import ProfileScreen from './containers/ProfileScreen';
 import FriendRequestScreen from './containers/FriendRequestScreen';
 import MessageScreen from './containers/MessageScreen';
 import ChatHeader from './components/ChatHeader';
+import LocationScreen from './containers/LocationScreen';
 
 const BottomTabNavigation = createBottomTabNavigator({
   Message: {
@@ -75,6 +76,12 @@ const App = createStackNavigator({
     screen: ChatScreen,
     navigationOptions: {
       headerTitle: props => <ChatHeader {...props} />
+    }
+  },
+  Location: {
+    screen: LocationScreen,
+    navigationOptions: {
+      title: 'Location'
     }
   }
 })

@@ -4,8 +4,9 @@ import firebase from 'react-native-firebase';
 import {connect} from 'react-redux';
 import * as actions from '../actions';
 import {Icon} from 'react-native-elements';
-import {View, TouchableOpacity, Keyboard} from 'react-native';
-import EmojiSelector from 'react-native-emoji-selector'
+import {Keyboard} from 'react-native';
+import EmojiSelector from 'react-native-emoji-selector';
+import CustomView from '../components/CustomView';
 
 const LIMIT_MESSAGE = 20;
 
@@ -93,7 +94,7 @@ class ChatScreen extends Component {
     this.setState({ text });
   }
 
-  renderActions = () => {
+  renderActions = props => {
     return (
       <Fragment>
         <Actions icon={() => (
@@ -102,10 +103,36 @@ class ChatScreen extends Component {
             type='antdesign'
             color='#4388D6' />
         )}
-        onPressActionButton={this.openEmojiSelector}
+          onPressActionButton={this.openEmojiSelector}
+        ></Actions>
+        <Actions icon={() => (
+          <Icon
+            name='location'
+            type='entypo'
+            color='#4388D6' />
+        )}
+        onPressActionButton={() => this.sendLocation(props)}
         ></Actions>
       </Fragment>
     )
+  }
+
+  sendLocation = (props) => {
+    navigator.geolocation.getCurrentPosition(position => {
+      const { coords: { latitude, longitude }} = position;
+      const messages = [{
+        user: props.user,
+        createdAt: new Date(),
+        _id: props.messageIdGenerator(),
+        location: {
+          latitude,
+          longitude
+        }
+      }]
+      this.onSend(messages);
+    },
+    error => alert(error.message),
+    { enableHighAccuracy: false, timeout: 200000, maximumAge: 1000 })
   }
 
   openEmojiSelector = () => {
@@ -125,6 +152,15 @@ class ChatScreen extends Component {
     })
   }
 
+  renderCustomView = (props) => {
+    return (
+      <CustomView
+        navigate={this.props.navigation.navigate}
+        {...props}
+      />
+    );
+  }
+
   render() {
     const {uid, photoURL, displayName} = this.props.auth;
     return (
@@ -142,6 +178,7 @@ class ChatScreen extends Component {
           textInputProps={{
             onFocus: this.onFocusTextInput,
           }}
+          renderCustomView={this.renderCustomView}
           user={{
             _id: uid,
             name: displayName,
