@@ -1,14 +1,23 @@
-import React, {Component} from 'react';
-import {GiftedChat} from 'react-native-gifted-chat';
+import React, {Component, Fragment} from 'react';
+import {GiftedChat, Actions} from 'react-native-gifted-chat';
 import firebase from 'react-native-firebase';
 import {connect} from 'react-redux';
 import * as actions from '../actions';
+import {Icon} from 'react-native-elements';
+import {View, TouchableOpacity, Keyboard} from 'react-native';
+import EmojiSelector from 'react-native-emoji-selector'
+
+const LIMIT_MESSAGE = 20;
 
 class ChatScreen extends Component {
   state = {
     messages: [],
     chatId: null,
-    friendId: null
+    friendId: null,
+    isLoadingEarlier: false,
+    loadEarlier: true,
+    text: '',
+    openEmojiSelector: false
   }
 
   updateChatUser = snapshot => {
@@ -29,7 +38,8 @@ class ChatScreen extends Component {
     const chatId = navigation.getParam('chatId');
     const friendId = chatId.replace(uid, '');
     firebase.database().ref(`/users/${friendId}`).on('value', this.updateChatUser);
-    firebase.database().ref(`/messages/${chatId}`).on('child_added', this.receiveMessage);
+    firebase.database().ref(`/messages/${chatId}`)
+    .orderByChild('createdAt').limitToLast(LIMIT_MESSAGE).on('child_added', this.receiveMessage);
 
     this.setState({
       friendId,
@@ -43,6 +53,34 @@ class ChatScreen extends Component {
     firebase.database().ref(`/messages/${chatId}`).off('child_added', this.receiveMessage);
   }
 
+  onLoadEarlier = () => {
+    this.setState({
+      isLoadingEarlier: true
+    }, () => {
+      const {chatId, messages} = this.state;
+      const lastMessage = messages[messages.length-1];
+      firebase.database().ref(`/messages/${chatId}`)
+      .orderByChild('createdAt').endAt(lastMessage.createdAt)
+      .limitToLast(LIMIT_MESSAGE + 1).once('value', snapshot => {
+        const response = snapshot.val();
+        delete response[lastMessage._id];
+        
+        const olderMessages = [];
+        for (let message in response) {
+          olderMessages.push(response[message]);
+        }
+
+        const loadEarlier = olderMessages.length === LIMIT_MESSAGE;
+
+        this.setState(previousState => ({
+          messages: GiftedChat.append(olderMessages, previousState.messages),
+          isLoadingEarlier: false,
+          loadEarlier
+        }))
+      })
+    })
+  }
+
   onSend = (messages = []) => {
     const {chatId } = this.state;
     for (let message of messages) {
@@ -51,19 +89,70 @@ class ChatScreen extends Component {
     }
   }
 
+  onInputTextChanged = text => {
+    this.setState({ text });
+  }
+
+  renderActions = () => {
+    return (
+      <Fragment>
+        <Actions icon={() => (
+          <Icon
+            name='smileo'
+            type='antdesign'
+            color='#4388D6' />
+        )}
+        onPressActionButton={this.openEmojiSelector}
+        ></Actions>
+      </Fragment>
+    )
+  }
+
+  openEmojiSelector = () => {
+    Keyboard.dismiss();
+    this.setState({ openEmojiSelector: true });
+  }
+
+  onFocusTextInput = () => {
+    this.setState({openEmojiSelector: false});
+  }
+
+  addEmoji = emoji => {
+    this.setState(previousState => {
+      return {
+        text: previousState.text + emoji
+      }
+    })
+  }
+
   render() {
     const {uid, photoURL, displayName} = this.props.auth;
-    console.log(this.state.messages);
     return (
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={messages => this.onSend(messages)}
-        user={{
-          _id: uid,
-          name: displayName,
-          avatar: photoURL,
-        }}
-      />
+      <Fragment>
+        <GiftedChat
+          loadEarlier={this.state.loadEarlier}
+          onLoadEarlier={this.onLoadEarlier}
+          isLoadingEarlier={this.state.isLoadingEarlier}
+          messages={this.state.messages}
+          onSend={messages => this.onSend(messages)}
+          placeholder='Type a message...'
+          text={this.state.text}
+          onInputTextChanged={this.onInputTextChanged}
+          renderActions={this.renderActions}
+          textInputProps={{
+            onFocus: this.onFocusTextInput,
+          }}
+          user={{
+            _id: uid,
+            name: displayName,
+            avatar: photoURL,
+          }}
+        />
+        {this.state.openEmojiSelector ? (<EmojiSelector
+          columns={10}
+          onEmojiSelected={this.addEmoji}
+        />) : null}
+      </Fragment>
     )
   }
 }

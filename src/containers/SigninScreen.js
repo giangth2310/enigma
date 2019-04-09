@@ -61,7 +61,6 @@ class LoginScreen extends Component {
       const {user} = await firebase.auth().signInWithCredential(credential);
 
       const userData = await firebase.database().ref(`/users/${user.uid}`).once('value');
-      console.log(userData.val());
       if (!userData.val()) {
         this.createUser(user);
       }
