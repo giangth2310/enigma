@@ -98,7 +98,19 @@ class ChatScreen extends Component {
     for (let message of messages) {
       const { _id } = message;
       firebase.database().ref(`/messages/${chatId}/${_id}`).set(message);
-      firebase.database().ref(`users/${friendId}/lastMessages/${chatId}`).set(message);
+      const textMessage = {
+        ...message
+      }
+      if (message.location) {
+        textMessage.text = '📍 Location';
+      }
+      if (message.image) {
+        textMessage.text = '🖼️ Photo';
+      }
+      if (message.text.length > 50) {
+        textMessage.text = message.text.slice(0, 50) + '...';
+      }
+      firebase.database().ref(`users/${friendId}/lastMessages/${chatId}`).set(textMessage);
     }
   }
 
