@@ -1,6 +1,6 @@
 import React from 'react';
 import {View} from 'react-native';
-import {Avatar, Badge} from 'react-native-elements';
+import {Avatar} from 'react-native-elements';
 
 const StatusAvatar = ({online, ...props}) => (
   <View>

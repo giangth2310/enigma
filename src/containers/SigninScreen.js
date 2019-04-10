@@ -37,17 +37,12 @@ class LoginScreen extends Component {
     firebase.database().ref(`/users/${user.uid}`).set(payload);
   } 
 
-  async componentDidMount() {
-    try {
-      const userInfo = await GoogleSignin.signInSilently();
-      const credential = firebase.auth.GoogleAuthProvider.credential(userInfo.idToken, userInfo.accessToken);
-      const {user} = await firebase.auth().signInWithCredential(credential);
+  componentWillMount() {
+    const user = firebase.auth().currentUser;
+    if (user) {
       this.updateUserData(user);
       this.props.navigation.navigate('App');
-    } catch (error) {
-      if (error.code != statusCodes.SIGN_IN_REQUIRED) {
-        console.log(error);
-      }
+    } else {
       this.setState({loading: false});
     }
   }

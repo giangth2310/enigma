@@ -15,6 +15,7 @@ class ProfileScreen extends Component {
         lastSignIn: Date.now(),
         online: false
       })
+      await firebase.auth().signOut();
       this.props.navigation.navigate('Auth');
     } catch (error) {
       console.error(error);

@@ -45,7 +45,6 @@ export default (state = INITIAL_STATE, action) => {
     case types.ACCEPT_FRIEND_REQUEST:
     replaceIndex = state.result.findIndex(item => item.uid === action.from);
     newResult = [...state.result];
-    console.log(state.result[replaceIndex].friends[action.from])
     newResult[replaceIndex] = {
       ...state.result[replaceIndex],
       friends: {
