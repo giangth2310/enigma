@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import firebase from 'react-native-firebase';
 import StatusAvatar from '../components/StatusAvatar';
 import {getChatId} from '../utils';
+import moment from 'moment';
 
 class FriendScreen extends Component {
   state = {
@@ -44,7 +45,7 @@ class FriendScreen extends Component {
   }
 
   renderItem = ({ item }) => {
-    const { id, photoURL, online, displayName } = item;
+    const { id, photoURL, online, displayName, lastSignIn } = item;
 
     return (
       <ListItem
@@ -60,8 +61,8 @@ class FriendScreen extends Component {
             }} />
         )}
         onPress={() => this.openChat(id)}
-        rightTitle={online ? 'Online' : 'Offline'}
-        rightTitleStyle={online ? { color: '#5cb85c', fontWeight: '500'} : {fontStyle: 'italic'}}
+        subtitle={online ? 'Online' : moment(lastSignIn).fromNow()}
+        subtitleProps={online ? { color: '#5cb85c', fontWeight: '500'} : {fontStyle: 'italic'}}
       ></ListItem>
     )
   }

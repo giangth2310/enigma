@@ -9,6 +9,7 @@
   "dependencies": {
     "emoji-datasource-facebook": "^4.1.0",
     "emoji-mart-native": "^0.4.5-beta",
+    "moment": "^2.24.0",
     "react": "16.6.3",
     "react-native": "0.58.6",
     "react-native-elements": "^1.1.0",

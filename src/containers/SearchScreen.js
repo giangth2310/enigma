@@ -4,6 +4,7 @@ import {connect} from 'react-redux';
 import { ListItem, Icon, Text, Button } from 'react-native-elements';
 import StatusAvatar from '../components/StatusAvatar';
 import * as actions from '../actions';
+import { getChatId } from '../utils';
 
 class SearchScreen extends Component {
   sendFriendRequest = (toId) => {
@@ -28,6 +29,7 @@ class SearchScreen extends Component {
   renderItem = ({item}) => {
     const { id, photoURL, online, displayName, email, friends } = item;
     const {uid} = this.props.auth;
+    const chatId = getChatId(uid, id);
 
     let friendStatus = (
       <TouchableOpacity 
@@ -101,6 +103,7 @@ class SearchScreen extends Component {
             }} />
         )}
         rightElement={friendStatus}
+        onPress={() => this.props.navigation.navigate('Chat', {chatId})}
       ></ListItem>
     )
   }

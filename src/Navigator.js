@@ -21,7 +21,7 @@ const BottomTabNavigation = createBottomTabNavigator({
     screen: FriendScreen,
   }
 }, {
-  initialRouteName: 'Friend',
+  initialRouteName: 'Message',
   defaultNavigationOptions: ({ navigation }) => ({
     tabBarIcon: ({ focused, tintColor }) => {
       const { routeName } = navigation.state;

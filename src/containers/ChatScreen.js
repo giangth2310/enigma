@@ -18,6 +18,7 @@ const LIMIT_MESSAGE = 20;
 class ChatScreen extends Component {
   state = {
     messages: [],
+    tempMessages: [],
     chatId: null,
     friendId: null,
     isLoadingEarlier: false,
@@ -31,11 +32,16 @@ class ChatScreen extends Component {
     this.props.updateChatUser({ displayName, online, lastSignIn, photoURL });
   }
 
-  receiveMessage = childSnapshot => {
-    const message = childSnapshot.val();
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, [message]),
-    }))
+  receiveMessage = snapshot => {
+    const messages = [];
+    snapshot.forEach(childsnapshot => {
+      const message = childsnapshot.val();
+      messages.unshift(message);
+    })
+    this.setState({
+      messages,
+      tempMessages: []
+    })
   }
 
   componentWillMount() {
@@ -45,7 +51,7 @@ class ChatScreen extends Component {
     const friendId = chatId.replace(uid, '');
     firebase.database().ref(`/users/${friendId}`).on('value', this.updateChatUser);
     firebase.database().ref(`/messages/${chatId}`)
-      .orderByChild('createdAt').limitToLast(LIMIT_MESSAGE).on('child_added', this.receiveMessage);
+      .orderByChild('createdAt').on('value', this.receiveMessage);
 
     this.setState({
       friendId,
@@ -56,7 +62,7 @@ class ChatScreen extends Component {
   componentWillUnmount() {
     const { friendId, chatId } = this.state;
     firebase.database().ref(`/users/${friendId}`).off('value', this.updateChatUser);
-    firebase.database().ref(`/messages/${chatId}`).off('child_added', this.receiveMessage);
+    firebase.database().ref(`/messages/${chatId}`).off('value', this.receiveMessage);
   }
 
   onLoadEarlier = () => {
@@ -88,10 +94,11 @@ class ChatScreen extends Component {
   }
 
   onSend = (messages = []) => {
-    const { chatId } = this.state;
+    const { chatId, friendId } = this.state;
     for (let message of messages) {
       const { _id } = message;
       firebase.database().ref(`/messages/${chatId}/${_id}`).set(message);
+      firebase.database().ref(`users/${friendId}/lastMessages/${chatId}`).set(message);
     }
   }
 
@@ -150,6 +157,7 @@ class ChatScreen extends Component {
           longitude
         }
       }]
+      this.setState({tempMessages: messages});
       this.onSend(messages);
     },
       error => Alert.alert('Can not get your location!', 'Make sure you allow location on enigma and location is turned on.'),
@@ -169,7 +177,7 @@ class ChatScreen extends Component {
       console.log('Response = ', response);
 
       if (response.didCancel) {
-        console.log('User cancelled video picker');
+        console.log('User cancelled photo picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
         Alert.alert('Cops!!!', "Something went wrong :(");
@@ -199,7 +207,7 @@ class ChatScreen extends Component {
       console.log('Response = ', response);
 
       if (response.didCancel) {
-        console.log('User cancelled video picker');
+        console.log('User cancelled photo picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
         Alert.alert('Cops!!!', "Something went wrong :(");
@@ -247,10 +255,11 @@ class ChatScreen extends Component {
     return (
       <View style={{ flex: 1 }}>
         <GiftedChat
-          loadEarlier={this.state.loadEarlier}
-          onLoadEarlier={this.onLoadEarlier}
-          isLoadingEarlier={this.state.isLoadingEarlier}
-          messages={this.state.messages}
+          // Can't limit the number of message yet
+          // loadEarlier={this.state.loadEarlier}
+          // onLoadEarlier={this.onLoadEarlier}
+          // isLoadingEarlier={this.state.isLoadingEarlier}
+          messages={[...this.state.tempMessages, ...this.state.messages]}
           onSend={messages => this.onSend(messages)}
           placeholder='Type a message...'
           text={this.state.text}

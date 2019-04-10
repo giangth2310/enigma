@@ -12,7 +12,8 @@ export default (state = INITIAL_STATE, action) => {
     case types.UPDATE_USER_DATA:
     return {
       ...state,
-      ...action.payload
+      ...action.payload,
+      friends: action.payload.friends || INITIAL_STATE.friends
     }
     default:
     return state;
