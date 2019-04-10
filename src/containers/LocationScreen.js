@@ -2,12 +2,14 @@ import React, {Component, Fragment} from 'react';
 import MapView, {Marker} from 'react-native-maps';
 import {Button} from 'react-native-elements';
 import getDirections from 'react-native-google-maps-directions';
+import {Alert} from 'react-native';
 
 class Location extends Component {
-  onGetDirections = () => {
+  onGetDirections = async () => {
     const { navigation } = this.props;
     const latitude = navigation.getParam('latitude');
     const longitude = navigation.getParam('longitude');
+
     navigator.geolocation.getCurrentPosition(position => {
       const { coords } = position;
       const data = {
@@ -20,7 +22,8 @@ class Location extends Component {
 
       getDirections(data)
     },
-    error => alert(error.message))
+    error => Alert.alert('Can not get your location!', 'Make sure you allow location on enigma and location is turned on.'),
+      { enableHighAccuracy: false, timeout: 200000, maximumAge: 1000 })
   }
 
   render() {

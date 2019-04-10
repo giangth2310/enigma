@@ -1,12 +1,17 @@
-import React, {Component, Fragment} from 'react';
-import {GiftedChat, Actions} from 'react-native-gifted-chat';
+import React, { Component, Fragment } from 'react';
+import { GiftedChat, Actions } from 'react-native-gifted-chat';
 import firebase from 'react-native-firebase';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import * as actions from '../actions';
-import {Icon} from 'react-native-elements';
-import {Keyboard} from 'react-native';
-import EmojiSelector from 'react-native-emoji-selector';
+import { Icon } from 'react-native-elements';
+import { Alert, Keyboard, View } from 'react-native';
 import CustomView from '../components/CustomView';
+import { ModalPicker } from 'emoji-mart-native';
+import data from 'emoji-mart-native/data/facebook.json';
+import dataRequires from 'emoji-mart-native/data/local-images/facebook';
+import ImagePicker from 'react-native-image-picker';
+
+const { emojis: localEmojis } = dataRequires
 
 const LIMIT_MESSAGE = 20;
 
@@ -18,12 +23,12 @@ class ChatScreen extends Component {
     isLoadingEarlier: false,
     loadEarlier: true,
     text: '',
-    openEmojiSelector: false
+    openEmojiPicker: false
   }
 
   updateChatUser = snapshot => {
-    const {displayName, online, lastSignIn, photoURL} = snapshot.val();
-    this.props.updateChatUser({displayName, online, lastSignIn, photoURL});
+    const { displayName, online, lastSignIn, photoURL } = snapshot.val();
+    this.props.updateChatUser({ displayName, online, lastSignIn, photoURL });
   }
 
   receiveMessage = childSnapshot => {
@@ -40,7 +45,7 @@ class ChatScreen extends Component {
     const friendId = chatId.replace(uid, '');
     firebase.database().ref(`/users/${friendId}`).on('value', this.updateChatUser);
     firebase.database().ref(`/messages/${chatId}`)
-    .orderByChild('createdAt').limitToLast(LIMIT_MESSAGE).on('child_added', this.receiveMessage);
+      .orderByChild('createdAt').limitToLast(LIMIT_MESSAGE).on('child_added', this.receiveMessage);
 
     this.setState({
       friendId,
@@ -58,34 +63,34 @@ class ChatScreen extends Component {
     this.setState({
       isLoadingEarlier: true
     }, () => {
-      const {chatId, messages} = this.state;
-      const lastMessage = messages[messages.length-1];
+      const { chatId, messages } = this.state;
+      const lastMessage = messages[messages.length - 1];
       firebase.database().ref(`/messages/${chatId}`)
-      .orderByChild('createdAt').endAt(lastMessage.createdAt)
-      .limitToLast(LIMIT_MESSAGE + 1).once('value', snapshot => {
-        const response = snapshot.val();
-        delete response[lastMessage._id];
-        
-        const olderMessages = [];
-        for (let message in response) {
-          olderMessages.push(response[message]);
-        }
+        .orderByChild('createdAt').endAt(lastMessage.createdAt)
+        .limitToLast(LIMIT_MESSAGE + 1).once('value', snapshot => {
+          const response = snapshot.val();
+          delete response[lastMessage._id];
 
-        const loadEarlier = olderMessages.length === LIMIT_MESSAGE;
+          const olderMessages = [];
+          for (let message in response) {
+            olderMessages.push(response[message]);
+          }
 
-        this.setState(previousState => ({
-          messages: GiftedChat.append(olderMessages, previousState.messages),
-          isLoadingEarlier: false,
-          loadEarlier
-        }))
-      })
+          const loadEarlier = olderMessages.length === LIMIT_MESSAGE;
+
+          this.setState(previousState => ({
+            messages: GiftedChat.append(olderMessages, previousState.messages),
+            isLoadingEarlier: false,
+            loadEarlier
+          }))
+        })
     })
   }
 
   onSend = (messages = []) => {
-    const {chatId } = this.state;
+    const { chatId } = this.state;
     for (let message of messages) {
-      const {_id} = message;
+      const { _id } = message;
       firebase.database().ref(`/messages/${chatId}/${_id}`).set(message);
     }
   }
@@ -103,7 +108,7 @@ class ChatScreen extends Component {
             type='antdesign'
             color='#4388D6' />
         )}
-          onPressActionButton={this.openEmojiSelector}
+          onPressActionButton={this.openEmojiPicker}
         ></Actions>
         <Actions icon={() => (
           <Icon
@@ -111,7 +116,23 @@ class ChatScreen extends Component {
             type='entypo'
             color='#4388D6' />
         )}
-        onPressActionButton={() => this.sendLocation(props)}
+          onPressActionButton={() => this.sendLocation(props)}
+        ></Actions>
+        <Actions icon={() => (
+          <Icon
+            name='image'
+            type='font-awesome'
+            color='#4388D6' />
+        )}
+          onPressActionButton={() => this.sendImage(props)}
+        ></Actions>
+        <Actions icon={() => (
+          <Icon
+            name='camera'
+            type='feather'
+            color='#4388D6' />
+        )}
+          onPressActionButton={() => this.takePhoto(props)}
         ></Actions>
       </Fragment>
     )
@@ -119,7 +140,7 @@ class ChatScreen extends Component {
 
   sendLocation = (props) => {
     navigator.geolocation.getCurrentPosition(position => {
-      const { coords: { latitude, longitude }} = position;
+      const { coords: { latitude, longitude } } = position;
       const messages = [{
         user: props.user,
         createdAt: new Date(),
@@ -131,20 +152,80 @@ class ChatScreen extends Component {
       }]
       this.onSend(messages);
     },
-    error => alert(error.message),
-    { enableHighAccuracy: false, timeout: 200000, maximumAge: 1000 })
+      error => Alert.alert('Can not get your location!', 'Make sure you allow location on enigma and location is turned on.'),
+      { enableHighAccuracy: false, timeout: 200000, maximumAge: 1000 })
   }
 
-  openEmojiSelector = () => {
+  sendImage = (props) => {
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true,
+      },
+    };
+    ImagePicker.launchImageLibrary(options, (response) => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled video picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+        Alert.alert('Cops!!!', "Something went wrong :(");
+      } else {
+        const image = 'data:image/jpeg;base64,' + response.data;
+        const messages = [{
+          user: props.user,
+          createdAt: new Date(),
+          _id: props.messageIdGenerator(),
+          image
+        }]
+        this.onSend(messages);
+      }
+    })
+  }
+
+  takePhoto = (props) => {
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true,
+      },
+    };
+    ImagePicker.launchCamera(options, (response) => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled video picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+        Alert.alert('Cops!!!', "Something went wrong :(");
+      } else {
+        const image = 'data:image/jpeg;base64,' + response.data;
+        const messages = [{
+          user: props.user,
+          createdAt: new Date(),
+          _id: props.messageIdGenerator(),
+          image
+        }]
+        this.onSend(messages);
+      }
+    })
+  }
+
+  openEmojiPicker = () => {
     Keyboard.dismiss();
-    this.setState({ openEmojiSelector: true });
+    this.setState({ openEmojiPicker: true });
   }
 
   onFocusTextInput = () => {
-    this.setState({openEmojiSelector: false});
+    this.setState({ openEmojiPicker: false });
   }
 
-  addEmoji = emoji => {
+  addEmoji = (emoji) => {
     this.setState(previousState => {
       return {
         text: previousState.text + emoji
@@ -162,9 +243,9 @@ class ChatScreen extends Component {
   }
 
   render() {
-    const {uid, photoURL, displayName} = this.props.auth;
+    const { uid, photoURL, displayName } = this.props.auth;
     return (
-      <Fragment>
+      <View style={{ flex: 1 }}>
         <GiftedChat
           loadEarlier={this.state.loadEarlier}
           onLoadEarlier={this.onLoadEarlier}
@@ -185,11 +266,15 @@ class ChatScreen extends Component {
             avatar: photoURL,
           }}
         />
-        {this.state.openEmojiSelector ? (<EmojiSelector
-          columns={10}
-          onEmojiSelected={this.addEmoji}
-        />) : null}
-      </Fragment>
+        <ModalPicker isVisible={this.state.openEmojiPicker} showCloseButton
+          onPressClose={() => {
+            this.setState({ openEmojiPicker: false })
+          }}
+          set='facebook' data={data} useLocalImages={localEmojis}
+          onSelect={emoji => {
+            this.addEmoji(emoji.native);
+          }} />
+      </View>
     )
   }
 }
