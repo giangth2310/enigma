@@ -11,7 +11,7 @@ class ProfileScreen extends Component {
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
-      firebase.database().ref(`/users/${uid}`).update({
+      await firebase.database().ref(`/users/${uid}`).update({
         lastSignIn: Date.now(),
         online: false
       })

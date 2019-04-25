@@ -107,7 +107,7 @@ class ChatScreen extends Component {
       if (message.image) {
         textMessage.text = '🖼️ Photo';
       }
-      if (message.text.length > 50) {
+      if (message.text && message.text.length > 50) {
         textMessage.text = message.text.slice(0, 50) + '...';
       }
       firebase.database().ref(`users/${friendId}/lastMessages/${chatId}`).set(textMessage);
