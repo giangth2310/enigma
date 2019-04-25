@@ -95,6 +95,7 @@ class ChatScreen extends Component {
 
   onSend = (messages = []) => {
     const { chatId, friendId } = this.state;
+    const {displayName, photoURL} = this.props.chat;
     for (let message of messages) {
       const { _id } = message;
       firebase.database().ref(`/messages/${chatId}/${_id}`).set(message);
@@ -111,6 +112,13 @@ class ChatScreen extends Component {
         textMessage.text = message.text.slice(0, 50) + '...';
       }
       firebase.database().ref(`users/${friendId}/lastMessages/${chatId}`).set(textMessage);
+      textMessage.text = 'You: ' + textMessage.text;
+      textMessage.user = {
+        _id: friendId,
+        name: displayName,
+        avatar: photoURL,
+      }
+      firebase.database().ref(`users/${this.props.auth.uid}/lastMessages/${chatId}`).set(textMessage);
     }
   }
 
