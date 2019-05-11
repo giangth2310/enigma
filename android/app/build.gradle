@@ -98,6 +98,11 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         applicationId "com.enigma"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -147,6 +152,7 @@ dependencies {
     implementation "com.google.firebase:firebase-core:16.0.6"
     implementation "com.google.firebase:firebase-auth:16.1.0"
     implementation "com.google.firebase:firebase-database:16.0.5"
+    implementation project(':WebRTCModule')
 }
 
 // Run this once to be able to run the application with BUCK

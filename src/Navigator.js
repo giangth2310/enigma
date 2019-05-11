@@ -12,6 +12,7 @@ import FriendRequestScreen from './containers/FriendRequestScreen';
 import MessageScreen from './containers/MessageScreen';
 import ChatHeader from './components/ChatHeader';
 import LocationScreen from './containers/LocationScreen';
+import VideoScreen from './containers/VideoScreen';
 
 const BottomTabNavigation = createBottomTabNavigator({
   Message: {
@@ -74,16 +75,22 @@ const App = createStackNavigator({
   },
   Chat: {
     screen: ChatScreen,
-    navigationOptions: {
-      headerTitle: props => <ChatHeader {...props} />
-    }
+    navigationOptions: ({navigation}) => ({
+      headerTitle: props => <ChatHeader {...props} navigation={navigation} />
+    })
   },
   Location: {
     screen: LocationScreen,
     navigationOptions: {
       title: 'Location'
     }
-  }
+  },
+  Video: {
+    screen: VideoScreen,
+    navigationOptions: {
+      header: null
+    }
+  },
 })
 
 export default createSwitchNavigator({

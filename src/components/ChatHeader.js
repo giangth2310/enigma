@@ -6,9 +6,15 @@ import StatusAvatar from './StatusAvatar';
 import {Text, Icon} from 'react-native-elements';
 
 class ChatHeader extends Component {
+  onVideoCall = () => {
+    const friendId = this.props.chat.uid;
+    this.props.navigation.navigate('Video', {
+      friendId,
+    });
+  }
+
   render() {
     const {displayName, photoURL, online} = this.props.chat;
-
     return (
       <View style={{
         flexDirection: 'row',
@@ -34,7 +40,8 @@ class ChatHeader extends Component {
         </View>
         <TouchableOpacity style={{
           marginRight: 20
-        }}>
+        }}
+          onPress={this.onVideoCall}>
           <Icon
             name='ios-videocam'
             type='ionicon'

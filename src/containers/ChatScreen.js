@@ -29,7 +29,7 @@ class ChatScreen extends Component {
 
   updateChatUser = snapshot => {
     const { displayName, online, lastSignIn, photoURL } = snapshot.val();
-    this.props.updateChatUser({ displayName, online, lastSignIn, photoURL });
+    this.props.updateChatUser({ displayName, online, lastSignIn, photoURL, uid: snapshot.key });
   }
 
   receiveMessage = snapshot => {
@@ -272,6 +272,7 @@ class ChatScreen extends Component {
 
   render() {
     const { uid, photoURL, displayName } = this.props.auth;
+
     return (
       <View style={{ flex: 1 }}>
         <GiftedChat

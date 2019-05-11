@@ -14,6 +14,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.database.RNFirebaseDatabasePackage;
+import com.oney.WebRTCModule.WebRTCModulePackage; 
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +37,8 @@ public class MainApplication extends Application implements ReactApplication {
             new RNGoogleSigninPackage(),
             new RNFirebasePackage(),
             new RNFirebaseAuthPackage(),
-            new RNFirebaseDatabasePackage() 
+            new RNFirebaseDatabasePackage(),
+            new WebRTCModulePackage()  
       );
     }
 
