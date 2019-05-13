@@ -28,8 +28,8 @@ class ChatScreen extends Component {
   }
 
   updateChatUser = snapshot => {
-    const { displayName, online, lastSignIn, photoURL } = snapshot.val();
-    this.props.updateChatUser({ displayName, online, lastSignIn, photoURL, uid: snapshot.key });
+    const { displayName, online, lastSignIn, photoURL, videoAvailable } = snapshot.val();
+    this.props.updateChatUser({ displayName, online, lastSignIn, photoURL, uid: snapshot.key, videoAvailable });
   }
 
   receiveMessage = snapshot => {

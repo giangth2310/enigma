@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import firebase from 'react-native-firebase';
 import {connect} from 'react-redux';
-import { Icon} from 'react-native-elements';
+import { Icon, Text, Avatar} from 'react-native-elements';
 
 let isFront = true;
 let pc = null;
@@ -100,11 +100,18 @@ class VideoScreen extends Component {
     firebase.database().ref(`/video/${friendId}`).on('child_added', this.readMessage);
   }
 
+  componentDidMount() {
+    const myId = this.props.auth.uid;
+    firebase.database().ref(`/users/${myId}/videoAvailable`).set(true);
+  }
+
   componentWillUnmount() {
     pc.close();
     this.state.localStream.release();
     const {friendId} = this.state;
     firebase.database().ref(`/video/${friendId}`).off('child_added', this.readMessage);
+    const myId = this.props.auth.uid;
+    firebase.database().ref(`/users/${myId}/videoAvailable`).set(false);
   }
 
   sendMessage = (senderId, data) => {
@@ -145,11 +152,34 @@ class VideoScreen extends Component {
       .then(() => this.sendMessage(myId, { 'sdp': pc.localDescription }));
   }
 
+  endCall = () => {
+    const myId = this.props.auth.uid;
+    firebase.database().ref(`/users/${myId}/videoAvailable`).set(false);
+    this.props.navigation.goBack();
+  }
+
   render() {
+    const {videoAvailable, photoURL} = this.props.chat; 
+    const available = (
+      <View style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1
+      }}>
+        <Avatar size='large' rounded source={{
+          uri: photoURL
+        }}></Avatar>
+        <Text h4 style={{
+          color: videoAvailable ? 'green' : 'red',
+          marginTop: 20
+        }}>{videoAvailable ? 'Video available' : 'Video unavailable'}</Text>
+      </View>
+    )
     return (
       <View style={styles.container}>
-        <RTCView streamURL={this.state.localStreamURL} style={styles.localView} />
-        <RTCView streamURL={this.state.remoteStreamURL} style={styles.remoteView} />
+        <RTCView streamURL={this.state.localStreamURL} style={styles.localView}/>
+        {videoAvailable && this.state.remoteStreamURL ? (<RTCView streamURL={this.state.remoteStreamURL} style={styles.remoteView} />)
+          : available} 
         <View style={styles.btnContainer}>
           <TouchableOpacity style={[styles.btn]} onPress={this.createOffer}>
             <Icon name="phone"
@@ -163,7 +193,7 @@ class VideoScreen extends Component {
               size={40}
               color="white"></Icon>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn, styles.endCallBtn]} onPress={() => this.props.navigation.goBack()}>
+          <TouchableOpacity style={[styles.btn, styles.endCallBtn]} onPress={this.endCall}>
             <Icon name="call-end"
               type='material'
               size={40}
@@ -179,6 +209,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
+  },
+  localView: {
+    position: 'absolute',
+    top: 20,
+    right: 10,
+    width: 100,
+    height: 150,
+  },
+  remoteView: {
+    flex: 1,
   },
   btn: {
     width: 60,
@@ -198,17 +238,6 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-  },
-  localView: {
-    position: 'absolute',
-    top: 20,
-    right: 10,
-    width: 100,
-    height: 150,
-  },
-  remoteView: {
-    width: '100%',
-    height: '100%',
   }
 })
 
