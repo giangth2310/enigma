@@ -38,12 +38,16 @@ class LoginScreen extends Component {
   } 
 
   componentWillMount() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      this.updateUserData(user);
-      this.props.navigation.navigate('App');
-    } else {
-      this.setState({loading: false});
+    try {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        this.updateUserData(user);
+        this.props.navigation.navigate('App');
+      } else {
+        this.setState({loading: false});
+      }
+    } catch (error) {
+      this.setState({ loading: false });
     }
   }
 
